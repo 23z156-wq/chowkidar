@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String               @id @default(uuid())
+  email        String               @unique
+  createdAt    DateTime             @default(now())
+  watchlist    WatchlistStock[]
+  observations UserObservation[]
+  preferences  AttentionPreference?
+  events       AttentionEvent[]
+}
+
+model Stock {
+  id            String           @id @default(uuid())
+  symbol        String           @unique
+  name          String
+  sector        String
+  snapshots     MarketSnapshot[]
+  events        AttentionEvent[]
+  watchlistedBy WatchlistStock[]
+}
+
+model WatchlistStock {
+  id      String @id @default(uuid())
+  userId  String
+  stockId String
+  addedAt DateTime @default(now())
+  user    User   @relation(fields: [userId], references: [id])
+  stock   Stock  @relation(fields: [stockId], references: [id])
+  @@unique([userId, stockId])
+}
+
+model MarketSnapshot {
+  id             String   @id @default(uuid())
+  stockId        String
+  price          Decimal
+  previousClose  Decimal
+  dayHigh        Decimal
+  dayLow         Decimal
+  volume         BigInt
+  fiftyTwoWkHigh Decimal
+  fiftyTwoWkLow  Decimal
+  timestamp      DateTime @default(now())
+  stock          Stock    @relation(fields: [stockId], references: [id])
+  @@index([stockId, timestamp])
+}
+
+model UserObservation {
+  id             String   @id @default(uuid())
+  userId         String
+  stockId        String
+  observedAt     DateTime @default(now())
+  observedPrice  Decimal
+  observedVolume BigInt
+  observedState  String
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model AttentionEvent {
+  id         String   @id @default(uuid())
+  userId     String
+  stockId    String
+  detectedAt DateTime @default(now())
+  score      Int
+  state      String
+  reasons    Json
+  seenAt     DateTime?
+  resolvedAt DateTime?
+  user       User     @relation(fields: [userId], references: [id])
+  stock      Stock    @relation(fields: [stockId], references: [id])
+  @@index([userId, state])
+}
+
+model AttentionPreference {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  priceWeight      Float    @default(1.0)
+  volumeWeight     Float    @default(1.0)
+  divergenceWeight Float    @default(1.0)
+  noveltyWeight    Float    @default(1.0)
+  displayCurrency  String   @default("INR")
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id])
+}
+
+model FxRate {
+  id            String   @id @default(uuid())
+  baseCurrency  String
+  quoteCurrency String
+  rate          Decimal
+  fetchedAt     DateTime @default(now())
+  @@unique([baseCurrency, quoteCurrency, fetchedAt])
+  @@index([baseCurrency, quoteCurrency])
+}
