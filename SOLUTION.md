@@ -70,22 +70,14 @@ Financial monitoring tools suffer from **alert fatigue**, **black-box scoring**,
 
 ## 🛠️ Installation & Setup
 
-1. **Clone/Unzip project**:
-   ```bash
-   cd chowkidar
-   ```
-
-2. **Install & Launch Frontend**:
-   ```bash
-   npm run dev
-   ```
-   *Or navigate to `frontend/`:*
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-
-3. **Open Browser**:
-   Navigate to `http://localhost:3002` (or `http://localhost:3000`).
-
+1. **Clone the repository**: `git clone <repo-url> && cd chowkidar`
+2. **Install dependencies**: `npm install`
+3. **Configure environment**: copy the example file and set your API keys:
+```bash
+cp frontend/.env.local.example frontend/.env.local
+# edit `frontend/.env.local` and add:
+#   NEXT_PUBLIC_TWELVEDATA_API_KEY=YOUR_TWELVEDATA_KEY
+#   NEXT_PUBLIC_GROQ_API_KEY=YOUR_GROQ_KEY
+```
+4. **Start development server**: `npm run dev`
+5. **Open in browser**: Navigate to `http://localhost:3005`
